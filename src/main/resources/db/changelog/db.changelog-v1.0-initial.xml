@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+<!--    adding the delivery table -->
+    <changeSet id="v1-create-delivery-table" author="mohamedelasri202lasri">
+        <createTable tableName="delivery">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="latitude" type="double"/>
+            <column name="longitude" type="double"/>
+            <column name="status" type="varchar"/>
+            <column name="volume" type="double"/>
+            <column name="weight" type="double"/>
+            <column name="tour_id" type="bigint"/>
+        </createTable>
+    </changeSet >
+
+<!--adding the status enum constraint -->
+    <changeSet id="v1-add-status-check-constraint" author="mohamedelasri202">
+
+        <sql>
+            alter table delivery add constraint chk_delivery_status
+            check(status in (
+                  'PENDING','IN_TRANSIT','DELIVERED','FAILED'))
+        </sql>
+        <rollback>
+            ALTER table delivery
+            drop constraint chk_delivery_status
+        </rollback>
+    </changeSet>
+
+<!--creating the table tour -->
+    <changeSet id="v1-create-table-tour" author="mohamedelasri202">
+       <createTable tableName="tour">
+           <column name="id" type="bigint " autoIncrement="true" >
+               <constraints primaryKey="true" nullable="false"/>
+           </column>
+           <column name="date" type="datetime"/>
+           <column name="vehicle_id" type="bigint"/>
+           <column name="warehouse_id" type="bigint"/>
+           <column name="tour_type" type="varchar(100)"/>
+       </createTable>
+    </changeSet>
+<!--adding the constraint for the tour type enum -->
+    <changeSet id="v1-add-tour-type-constraint" author="mohamedelasri202">
+        <sql>
+            alter table tour add constraint chk_tour_type
+            check ( tour_type in (
+                                  'NearestNeighborOptimizer',
+                                  'ClarkeWrightOptimizer'
+                ) )
+        </sql>
+
+        <rollback>
+            alter table tour
+            drop constraint chk_tour_type
+        </rollback>
+
+    </changeSet>
+<!--    adding the warehouse table-->
+    <changeSet id="v1-add-warehouse-table" author="mohamedelasri202">
+       <createTable tableName="warehouse">
+           <column name="id" type="bigint" autoIncrement="true">
+               <constraints primaryKey="true" nullable="false"/>
+           </column>
+           <column name="name" type="varchar(100)"/>
+           <column name="longitude" type="double"/>
+           <column name="latitude" type="double"/>
+       </createTable>
+    </changeSet>
+    
+<!--    adding the vehicle table-->
+    <changeSet id="v1-add-vehicle-table" author="mohamedelasri202">
+       <createTable tableName="vehicle">
+           <column name="id" type="bigint" autoIncrement="true">
+               <constraints primaryKey="true" nullable="false"/>
+           </column>
+           <column name="type" type="varchar(100)"/>
+           <column name="max_deliveries" type="double"/>
+           <column name="max_volume" type="double"/>
+           <column name="max_weight" type="double"/>
+       </createTable>
+        
+    </changeSet>
+    
+<!--    adding the type constraint -->
+    <changeSet id="v1-vehicle-type-constraint" author="mohamedelasri202">
+        <sql>
+            alter table vehicle add constraint chk_vehilce_type_constraint
+            check (type in(
+                'VAN',
+                'BIKE',
+                    'TRUCK'
+                ) )
+        </sql>
+
+        <rollback>
+            alter table vehicle
+            drop constraint chk_vehilce_type_constraint
+        </rollback>
+
+    </changeSet>
+
+<!--    adding the foreign key for the vehicle_id-->
+    <changeSet id="v1-add-fk-vehicle-to-tour" author="mohamedelasri202">
+        <addForeignKeyConstraint baseTableName="tour" baseColumnNames="vehicle_id" constraintName="fk-constraint-tour-to-vehicle" referencedTableName="vehicle"
+                                 referencedColumnNames="id"/>
+
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="tour" constraintName="fk-constraint-tour-to-vehicle"/>
+        </rollback>
+
+    </changeSet>
+<!--    adding the foreign key for the warehouse id in the tour table -->
+    <changeSet id="v1-add-fk-constraint-warehouse-to-tour" author="mohamedelasri202">
+                <addForeignKeyConstraint baseTableName="tour" baseColumnNames="warehouse_id" constraintName="fk-constraint-tour-warehouse"
+                                         referencedTableName="warehouse" referencedColumnNames="id"/>
+                <rollback>
+                    <dropForeignKeyConstraint baseTableName="tour" constraintName="fk-constraint-tour-warehouse"/>
+                </rollback>
+            </changeSet>
+
+<!--    adding the foreign key for the tour_id for the delivery table -->
+    <changeSet id="v1-add-fk-tour-to-delivery" author="mohamedelasri202">
+        <addForeignKeyConstraint baseTableName="delivery" baseColumnNames="tour_id" constraintName="fr-tour-delivery" referencedTableName="tour"
+                                 referencedColumnNames="id" onDelete="CASCADE" onUpdate="RESTRICT"/>
+
+        <rollback>
+          <dropForeignKeyConstraint baseTableName="delivery" constraintName="fr-tour-delivery"/>
+        </rollback>
+    </changeSet>
+
+<!--    -->
+
+</databaseChangeLog>

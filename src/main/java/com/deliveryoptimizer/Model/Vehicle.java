@@ -15,9 +15,9 @@ public class Vehicle {
     @Enumerated(EnumType.STRING)
     private VehicleType type;
 
-    private Double maxWeight; // Capacity in kg
-    private Double maxVolume; // Capacity in m³
-    private Integer maxDeliveries; // Max deliveries per tour
+    private Double maxWeight;
+    private Double maxVolume;
+    private Integer maxDeliveries;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     @JsonManagedReference

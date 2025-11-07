@@ -80,7 +80,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <!-- Springboot already provides a tested Liquibase version, but you can override it to use your preffered version -->
+            <version>4.31.1</version>
+        </dependency>
     </dependencies>
+
+
 
     <build>
         <plugins>

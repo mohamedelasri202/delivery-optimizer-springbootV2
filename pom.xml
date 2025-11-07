@@ -87,6 +87,12 @@
             <!-- Springboot already provides a tested Liquibase version, but you can override it to use your preffered version -->
             <version>4.31.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
 

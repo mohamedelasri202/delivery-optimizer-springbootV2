@@ -2,6 +2,9 @@ package com.deliveryoptimizer.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.List; // Needed for the new historyRecords list
 
 @Entity
@@ -19,9 +22,26 @@ public class Delivery {
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status = DeliveryStatus.PENDING;
+    @Column(name = "plannedTime")
+    private LocalTime plannedTime;
+    @Column(name = "actualTime")
+    private LocalTime actualTime;
 
+    public LocalTime getPlannedTime() {
+        return plannedTime;
+    }
 
+    public void setPlannedTime(LocalTime plannedTime) {
+        this.plannedTime = plannedTime;
+    }
 
+    public LocalTime getActualTime() {
+        return actualTime;
+    }
+
+    public void setActualTime(LocalTime actualTime) {
+        this.actualTime = actualTime;
+    }
 
     @ManyToOne
     @JoinColumn(name = "customer_id")

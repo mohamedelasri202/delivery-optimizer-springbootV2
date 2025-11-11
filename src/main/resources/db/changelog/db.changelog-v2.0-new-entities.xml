@@ -121,5 +121,19 @@
             ALTER TABLE tour DROP CONSTRAINT chk_tour_status;
         </rollback>
     </changeSet>
+<!--    adding the actual time and planned time to delivery table-->
+    <changeSet id="v2-11-add-timing-columns-to-delivery" author="mohamedelasri202">
+        <comment>Adds planned and actual times to Delivery for delay calculation.</comment>
+        <addColumn tableName="delivery">
+            <column name="planned_time" type="TIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="actual_time" type="TIME"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="delivery" columnName="planned_time"/>
+            <dropColumn tableName="delivery" columnName="actual_time"/>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

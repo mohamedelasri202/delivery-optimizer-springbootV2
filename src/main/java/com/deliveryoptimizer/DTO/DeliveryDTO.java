@@ -2,6 +2,9 @@ package com.deliveryoptimizer.DTO;
 
 import com.deliveryoptimizer.Model.DeliveryStatus;
 
+import java.sql.Time;
+import java.time.LocalTime;
+
 public class DeliveryDTO {
 
     private Long id;
@@ -11,7 +14,24 @@ public class DeliveryDTO {
     private double volume;
     private DeliveryStatus status;
     private Long tourId;
+    private LocalTime plannedTime;
+    private LocalTime actualTime;
 
+    public LocalTime getActualTime() {
+        return actualTime;
+    }
+
+    public void setActualTime(LocalTime actualTime) {
+        this.actualTime = actualTime;
+    }
+
+    public LocalTime getPlannedTime() {
+        return plannedTime;
+    }
+
+    public void setPlannedTime(LocalTime plannedTime) {
+        this.plannedTime = plannedTime;
+    }
 
     public Long getId() {
         return id;

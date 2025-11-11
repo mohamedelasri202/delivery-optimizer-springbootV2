@@ -19,7 +19,9 @@ public class DeliveryHistory {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     private LocalDate date_of_delivery;
+    @Column(name = "plannedTime")
     private LocalTime planned_time;
+    @Column(name = "actualTime")
     private LocalTime actual_time;
     private Long delay_seconds;
     @ManyToOne

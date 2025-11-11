@@ -7,6 +7,7 @@ import com.deliveryoptimizer.Model.Delivery;
 import com.deliveryoptimizer.Model.Tour;
 import com.deliveryoptimizer.Model.Vehicle;
 import com.deliveryoptimizer.Model.Warehouse;
+import com.deliveryoptimizer.Optimizer.RouteOptimizationContext; // New Import
 import com.deliveryoptimizer.Optimizer.TourOptimizer;
 import com.deliveryoptimizer.Repositories.TourRepository;
 import com.deliveryoptimizer.Mapper.TourMapper;
@@ -15,6 +16,8 @@ import com.deliveryoptimizer.Repositories.WareHouseRepository;
 import com.deliveryoptimizer.util.DistanceCalculator;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Lookup; // CRITICAL Import
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,31 +26,38 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class TourService implements TourServiceInterface {
+
+public abstract class TourService implements TourServiceInterface {
 
     private final TourRepository tourRepository;
     private final TourMapper tourMapper;
     private final WareHouseRepository wareHouseRepository;
     private final VehicleRepository vehicleRepository;
-    private final TourOptimizer nearestNeighborOptimizer;
-    private final TourOptimizer clarkeWrightOptimizer;
+    private final List<TourOptimizer> optimizers;
+    private final TourOptimizer activeOptimizer;
     private final OptimizedTourMapper optimizedTourMapper;
+
+    @Lookup
+    public abstract RouteOptimizationContext getRouteOptimizationContext();
+
+
 
     public TourService(TourRepository tourRepository,
                        TourMapper tourMapper,
                        WareHouseRepository wareHouseRepository,
                        VehicleRepository vehicleRepository,
-                       TourOptimizer nearestNeighborOptimizer,
-                       TourOptimizer clarkeWrightOptimizer,
+                       List<TourOptimizer> optimizers,
+                       @Qualifier("tourOptimizer") TourOptimizer activeOptimizer,
                        OptimizedTourMapper optimizedTourMapper) {
         this.tourRepository = tourRepository;
         this.tourMapper = tourMapper;
         this.wareHouseRepository = wareHouseRepository;
         this.vehicleRepository = vehicleRepository;
-        this.nearestNeighborOptimizer = nearestNeighborOptimizer;
-        this.clarkeWrightOptimizer = clarkeWrightOptimizer;
+        this.optimizers = optimizers;
+        this.activeOptimizer = activeOptimizer;
         this.optimizedTourMapper = optimizedTourMapper;
     }
+
 
 
     @Transactional
@@ -55,22 +65,14 @@ public class TourService implements TourServiceInterface {
         log.info("Starting creation of new Tour.");
         Tour tour = tourMapper.toEntity(dto);
 
-
         if (dto.getWarehouseId() != null) {
             Warehouse warehouse = wareHouseRepository.findById(dto.getWarehouseId())
-                    .orElseThrow(() -> {
-                        log.error("Warehouse not found with id {}", dto.getWarehouseId());
-                        return new RuntimeException("Warehouse not found with id " + dto.getWarehouseId());
-                    });
+                    .orElseThrow(() -> new RuntimeException("Warehouse not found with id " + dto.getWarehouseId()));
             tour.setWarehouse(warehouse);
         }
-
         if (dto.getVehicleId() != null) {
             Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId().intValue())
-                    .orElseThrow(() -> {
-                        log.error("Vehicle not found with id {}", dto.getVehicleId());
-                        return new RuntimeException("Vehicle not found with id " + dto.getVehicleId());
-                    });
+                    .orElseThrow(() -> new RuntimeException("Vehicle not found with id " + dto.getVehicleId()));
             tour.setVehicle(vehicle);
         }
 
@@ -109,6 +111,7 @@ public class TourService implements TourServiceInterface {
     }
 
 
+
     @Override
     public OptimizedTourDTO getOptimizedTour(Integer id) {
         log.info("Starting single optimization for Tour ID {}.", id);
@@ -119,56 +122,46 @@ public class TourService implements TourServiceInterface {
             return null;
         }
 
-        TourOptimizer tourOptimizer;
 
-        switch (tour.getTourType().toString()) {
-            case "NearestNeighborOptimizer": // Assuming the enum value name
-                tourOptimizer = nearestNeighborOptimizer;
-                break;
-            case "ClarkeWrightOptimizer": // Assuming the enum value name
-                tourOptimizer = clarkeWrightOptimizer;
-                break;
-            default:
-                log.error("Unknown tour type {} for Tour ID {}. Cannot optimize.", tour.getTourType(), id);
-                throw new RuntimeException("Unknown tour type: " + tour.getTourType());
-        }
+        RouteOptimizationContext context = getRouteOptimizationContext();
 
-        log.info("Selected optimizer: {}. Starting calculation.", tourOptimizer.getClass().getSimpleName());
+        context.setTourId((long) tour.getId());
+        context.setVehicle(tour.getVehicle());
+        context.setWarehouse(tour.getWarehouse());
+        context.setDeliveries(tour.getDeliveries());
 
-        List<Delivery> optimizedDeliveries = tourOptimizer.calculateOptimalTour(
-                tour.getVehicle(),
-                tour.getWarehouse(),
-                tour.getDeliveries()
-        );
+        log.info("Selected optimizer: {}. Starting calculation.", activeOptimizer.getClass().getSimpleName());
+
+        List<Delivery> optimizedDeliveries = activeOptimizer.calculateOptimalTour(context);
 
         double totalDistance = getTotallDistance(tour.getWarehouse(), optimizedDeliveries);
-        log.info("Optimization complete for Tour ID {}. Total distance: {} km.", id, totalDistance);
+        log.info("Optimization complete for Tour ID {}. Total distance: {} km. Optimizer: {}",
+                id, totalDistance, activeOptimizer.getClass().getSimpleName());
 
 
         return optimizedTourMapper.toDTO(tour, optimizedDeliveries, totalDistance);
     }
 
-    public double getTotallDistance(Warehouse warehouse, List<Delivery> deliveries) {
 
+    public double getTotallDistance(Warehouse warehouse, List<Delivery> deliveries) {
         double totalDistance = 0;
         double currentLat = warehouse.getLatitude();
         double currentLon = warehouse.getLongitude();
 
         for(Delivery d : deliveries) {
-
             totalDistance += DistanceCalculator.DistanceCalc(currentLon, currentLat, d.getLongitude(), d.getLatitude());
             currentLat = d.getLatitude();
             currentLon = d.getLongitude();
         }
 
         totalDistance += DistanceCalculator.DistanceCalc(currentLon, currentLat, warehouse.getLongitude(), warehouse.getLatitude());
-
         return totalDistance;
     }
 
+
     @Override
     public List<OptimizedTourDTO> compareAlgorithem(Integer id) {
-        log.info("Starting comparison between NEAREST_NEIGHBOR and CLARKE_WRIGHT for Tour ID {}.", id);
+        log.info("Starting comparison of all {} active algorithms for Tour ID {}.", optimizers.size(), id);
 
         Optional<Tour> tourOptional = tourRepository.findByIdWithDetails(id);
         if (tourOptional.isEmpty()) {
@@ -185,33 +178,28 @@ public class TourService implements TourServiceInterface {
         List<OptimizedTourDTO> comparisonResults = new ArrayList<>();
 
 
-        log.info("Executing NEAREST_NEIGHBOR optimization.");
-        List<Delivery> nnDeliveries = nearestNeighborOptimizer.calculateOptimalTour(
-                tour.getVehicle(), tour.getWarehouse(), tour.getDeliveries()
-        );
-        double nnDistance = getTotallDistance(tour.getWarehouse(), nnDeliveries);
-        log.info("NEAREST_NEIGHBOR distance for Tour ID {}: {} km.", id, nnDistance);
+        RouteOptimizationContext context = getRouteOptimizationContext();
+
+        for (TourOptimizer optimizer : optimizers) {
+            String optimizerName = optimizer.getClass().getSimpleName();
+            log.info("Executing {} optimization.", optimizerName);
+
+            // Populate context for the current run
+            context.setTourId((long) tour.getId());
+            context.setVehicle(tour.getVehicle());
+            context.setWarehouse(tour.getWarehouse());
+            context.setDeliveries(tour.getDeliveries());
 
 
-        OptimizedTourDTO nnResult = optimizedTourMapper.toDTO(tour, nnDeliveries, nnDistance);
-        nnResult.setAlgorithmUsed("NEAREST_NEIGHBOR");
-        comparisonResults.add(nnResult);
+            List<Delivery> optimizedDeliveries = optimizer.calculateOptimalTour(context);
+            double distance = getTotallDistance(tour.getWarehouse(), optimizedDeliveries);
 
+            log.info("{} distance for Tour ID {}: {} km.", optimizerName, id, distance);
 
-
-        log.info("Executing CLARKE_WRIGHT optimization.");
-        List<Delivery> cwDeliveries = clarkeWrightOptimizer.calculateOptimalTour(
-                tour.getVehicle(), tour.getWarehouse(), tour.getDeliveries()
-        );
-        double cwDistance = getTotallDistance(tour.getWarehouse(), cwDeliveries);
-        log.info("CLARKE_WRIGHT distance for Tour ID {}: {} km.", id, cwDistance);
-
-
-        OptimizedTourDTO cwResult = optimizedTourMapper.toDTO(tour, cwDeliveries, cwDistance);
-        cwResult.setAlgorithmUsed("CLARKE_WRIGHT");
-        comparisonResults.add(cwResult);
-
-        log.info("Comparison complete for Tour ID {}. NN: {} km, CW: {} km.", id, nnDistance, cwDistance);
+            OptimizedTourDTO result = optimizedTourMapper.toDTO(tour, optimizedDeliveries, distance);
+            result.setAlgorithmUsed(optimizerName);
+            comparisonResults.add(result);
+        }
 
         return comparisonResults;
     }

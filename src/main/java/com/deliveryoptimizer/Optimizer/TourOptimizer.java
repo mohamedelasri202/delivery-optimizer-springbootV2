@@ -9,5 +9,5 @@ import java.util.List;
 @Component
 public interface TourOptimizer {
 
-    List<Delivery> calculateOptimalTour(Vehicle vehicle, Warehouse warehouse, List<Delivery> deliveries);
+    List<Delivery> calculateOptimalTour(RouteOptimizationContext context);
 }

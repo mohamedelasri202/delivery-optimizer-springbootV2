@@ -41,17 +41,19 @@ public class TourController {
     }
 
 
-    @PostMapping("/{id}/optimize")
-    public ResponseEntity<OptimizedTourDTO> optimize(@PathVariable Integer id) {
+    @GetMapping("/{id}/optimized-deliveries")
+    public ResponseEntity<OptimizedTourDTO> getOptimizedRoute(@PathVariable Integer id) {
+
 
         OptimizedTourDTO optimizedTour = tourService.getOptimizedTour(id);
-        if(optimizedTour != null){
+
+        if (optimizedTour != null) {
             return ResponseEntity.ok(optimizedTour);
-        }else {
+        } else {
+
             return ResponseEntity.notFound().build();
         }
     }
-
     @GetMapping("/{id}/compareAlgorithems")
 
     public ResponseEntity<List<OptimizedTourDTO>> compareAlgorithems(@PathVariable Integer id) {

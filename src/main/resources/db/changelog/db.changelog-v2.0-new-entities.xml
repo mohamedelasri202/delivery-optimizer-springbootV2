@@ -5,4 +5,121 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <changeSet id="v2-1-add-column-customer_id-to-delivery" author="mohamedelasri202">
+        <addColumn tableName="delivery">
+            <column name="customer_id" type="bigint"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="delivery" columnName="customer_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2-2-create-customer-table" author="mohamedelasri202">
+        <createTable tableName="customer">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)"/>
+            <column name="address" type="varchar(255)"/> <column name="latitude" type="double"/>
+            <column name="longitude" type="double"/>
+            <column name="preferred_time_slot" type="varchar(20)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="customer"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2-3-create-delivery-history-table" author="mohamedelasri202">
+        <createTable tableName="delivery_history">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tour_id" type="bigint"/>
+            <column name="customer_id" type="bigint"/>
+            <column name="delivery_id" type="bigint"/>
+            <column name="actual_time" type="time"/>
+            <column name="date_of_delivery" type="date"/>
+            <column name="delay_seconds" type="bigint"/>
+            <column name="planned_time" type="time"/>
+            <column name="day_of_week" type="varchar(15)"/> </createTable>
+        <rollback>
+            <dropTable tableName="delivery_history"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2-4-add-dayofweek-check-constraint" author="mohamedelasri202">
+        <sql>
+            ALTER TABLE delivery_history
+                ADD CONSTRAINT chk_day_of_week
+                    CHECK (day_of_week IN (
+                                           'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY',
+                                           'FRIDAY', 'SATURDAY', 'SUNDAY'
+                        ));
+        </sql>
+        <rollback>
+            ALTER TABLE delivery_history DROP CONSTRAINT chk_day_of_week;
+        </rollback>
+    </changeSet>
+
+
+    <changeSet id="v2-5-fk-delivery-to-customer" author="mohamedelasri202">
+        <addForeignKeyConstraint baseTableName="delivery" baseColumnNames="customer_id" constraintName="fk_delivery_customer"
+                                 referencedTableName="customer" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="delivery" constraintName="fk_delivery_customer"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2-6-fk-history-to-customer" author="mohamedelasri202">
+        <addForeignKeyConstraint baseTableName="delivery_history" baseColumnNames="customer_id" constraintName="fk_history_customer"
+                                 referencedTableName="customer" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="delivery_history" constraintName="fk_history_customer"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2-7-fk-history-to-tour" author="mohamedelasri202">
+        <addForeignKeyConstraint baseTableName="delivery_history" baseColumnNames="tour_id" constraintName="fk_history_tour"
+                                 referencedTableName="tour" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="delivery_history" constraintName="fk_history_tour"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2-8-fk-history-to-delivery" author="mohamedelasri202">
+        <addForeignKeyConstraint baseTableName="delivery_history" baseColumnNames="delivery_id" constraintName="fk_history_delivery"
+                                 referencedTableName="delivery" referencedColumnNames="id"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="delivery_history" constraintName="fk_history_delivery"/>
+        </rollback>
+    </changeSet>
+
+<!--adding the status for the tour -->
+    <changeSet id="v2-9-add-status-column-to-tour" author="mohamedelasri202">
+        <addColumn tableName="tour" >
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="tour" columnName="status"/>
+        </rollback>
+    </changeSet>
+
+<!--    tour status change set constraint -->
+    <changeSet id="v2-10-add-chk-status-constraint-tour" author="mohamedelasri202">
+        <sql>
+            ALTER TABLE tour
+                ADD CONSTRAINT chk_tour_status
+                    CHECK (status IN (
+                                      'PENDING',
+                                      'COMPLETED',
+                                      'CANCELLED'
+                        ));
+        </sql>
+        <rollback>
+            ALTER TABLE tour DROP CONSTRAINT chk_tour_status;
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

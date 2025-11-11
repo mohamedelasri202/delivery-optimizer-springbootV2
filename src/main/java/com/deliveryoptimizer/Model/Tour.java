@@ -11,32 +11,37 @@ public class Tour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int id; // Type maintained as int
 
     private LocalDate date;
 
     @Enumerated(EnumType.STRING)
     private TourType tourType;
 
-
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
-    // Many tours use one vehicle
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     @JsonBackReference
     private Vehicle vehicle;
 
-
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Delivery> deliveries;
 
+
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.REMOVE)
+    private List<DeliveryHistory> historyRecords;
+    @Enumerated(EnumType.STRING)
+    private TourStatus status = TourStatus.PENDING;
+
+
+
     public Tour() {}
 
-    // Getters and setters
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -54,4 +59,10 @@ public class Tour {
 
     public List<Delivery> getDeliveries() { return deliveries; }
     public void setDeliveries(List<Delivery> deliveries) { this.deliveries = deliveries; }
+
+
+    public List<DeliveryHistory> getHistoryRecords() { return historyRecords; }
+    public void setHistoryRecords(List<DeliveryHistory> historyRecords) { this.historyRecords = historyRecords; }
+    public TourStatus getStatus() { return status; }
+    public void setStatus(TourStatus status) { this.status = status; }
 }

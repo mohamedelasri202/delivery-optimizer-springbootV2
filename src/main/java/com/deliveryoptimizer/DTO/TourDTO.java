@@ -1,5 +1,7 @@
 package com.deliveryoptimizer.DTO;
 
+import com.deliveryoptimizer.Model.TourStatus;
+
 import java.time.LocalDate;
 
 public class TourDTO {
@@ -14,10 +16,17 @@ public class TourDTO {
     private Long vehicleId;
     private String vehicleRegistrationNumber;
     private String vehicleType;
+    private TourStatus tourStatus;
 
     public TourDTO() {}
 
+    public TourStatus getTourStatus() {
+        return tourStatus;
+    }
 
+    public void setTourStatus(TourStatus tourStatus) {
+        this.tourStatus = tourStatus;
+    }
 
     public int getId() {
         return id;

@@ -9,5 +9,5 @@ public interface DeleveryServiceInrerface {
     DeliveryDTO create(DeliveryDTO dto);  // Changed return type
     Delivery update(Delivery delivery);
     void delete(int id);
-    public DeliveryDTO  deliverDelivery(Integer id);
+     DeliveryDTO  deliverDelivery(Integer id);
 }

@@ -5,6 +5,9 @@ import com.deliveryoptimizer.DTO.TourDTO;
 import com.deliveryoptimizer.Model.Tour;
 import com.deliveryoptimizer.Service.TourService;
 import com.deliveryoptimizer.Service.TourServiceInterface;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,5 +70,21 @@ public class TourController {
 
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PatchMapping("/{id}/complete") // PATCH is better for partial update (status change)
+    @Operation(summary = "Mark tour as COMPLETE and generate historical data",
+            description = "Changes the tour status to COMPLETED and triggers the creation of DeliveryHistory records for all associated packages.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tour status updated and history created"),
+            @ApiResponse(responseCode = "404", description = "Tour ID not found")
+    })
+    public ResponseEntity<TourDTO> completeTour(@PathVariable Integer id) {
+
+        // 1. Call the service method to execute the history creation logic
+        TourDTO completedTourDTO = tourService.completeTour(id);
+
+        // 2. Return 200 OK with the final state of the Tour
+        return ResponseEntity.ok(completedTourDTO);
     }
 }

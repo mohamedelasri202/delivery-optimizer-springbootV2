@@ -23,4 +23,6 @@ public interface TourServiceInterface {
 
      double getTotallDistance(Warehouse warehouse , List<Delivery> orderedDeliveries);
     List<OptimizedTourDTO> compareAlgorithem(Integer id);
+
+    TourDTO completeTour(Integer id);
 }

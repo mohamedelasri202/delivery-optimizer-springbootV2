@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev,cw
+    active: qa,cw
   jpa:
     hibernate:
       ddl-auto: none

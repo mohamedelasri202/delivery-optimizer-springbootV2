@@ -11,7 +11,7 @@ public class Tour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id; // Type maintained as int
+    private int id;
 
     private LocalDate date;
 

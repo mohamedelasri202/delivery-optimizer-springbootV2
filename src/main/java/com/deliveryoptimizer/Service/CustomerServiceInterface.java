@@ -8,4 +8,6 @@ import java.util.List;
 public interface CustomerServiceInterface {
 
     CustomerDTO createCustomer(CustomerDTO customer);
+    CustomerDTO updateCustomer(CustomerDTO customer);
+    CustomerDTO deleteCustomer(Long id);
 }

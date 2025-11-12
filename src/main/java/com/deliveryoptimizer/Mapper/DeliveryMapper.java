@@ -6,11 +6,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
+
 public interface DeliveryMapper {
 
+    @Mapping(source = "customer.id", target = "customerId")
     @Mapping(source = "tour.id", target = "tourId")
     DeliveryDTO toDTO(Delivery delivery);
 
-    @Mapping(source = "tourId", target = "tour.id")
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "tour", ignore = true)
+    @Mapping(target = "historyRecords", ignore = true)
     Delivery toEntity(DeliveryDTO dto);
 }

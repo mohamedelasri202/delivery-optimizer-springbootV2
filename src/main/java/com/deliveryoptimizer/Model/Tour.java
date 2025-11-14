@@ -1,6 +1,7 @@
 package com.deliveryoptimizer.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -28,11 +29,12 @@ public class Tour {
     private Vehicle vehicle;
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Delivery> deliveries;
 
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.REMOVE)
+    @JsonIgnore
     private List<DeliveryHistory> historyRecords;
     @Enumerated(EnumType.STRING)
     private TourStatus status = TourStatus.PENDING;

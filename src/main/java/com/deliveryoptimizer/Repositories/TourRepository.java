@@ -10,6 +10,10 @@ import java.util.Optional;
 @Repository
 public interface TourRepository extends JpaRepository<Tour, Integer> {
 
+
+
+
+
     @Query("""
 SELECT DISTINCT t
 FROM Tour t
@@ -19,6 +23,5 @@ LEFT JOIN FETCH t.deliveries
 WHERE t.id = :id
 """)
     Optional<Tour> findByIdWithDetails(@Param("id") Integer id);
-
 
 }

@@ -2,14 +2,17 @@ package com.deliveryoptimizer.Repositories;
 
 import com.deliveryoptimizer.DTO.AiTrainingDTO;
 import com.deliveryoptimizer.Model.DeliveryHistory;
+import com.deliveryoptimizer.Model.TourStatus;
+import org.springframework.data.domain.Page; // Import for pagination
+import org.springframework.data.domain.Pageable; // Import for pagination
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate; // Use modern LocalDate
 import java.util.List;
-
 public interface DeliveryHistoryRepository extends JpaRepository<DeliveryHistory, Long> {
+
 
     @Query("SELECT new com.deliveryoptimizer.DTO.AiTrainingDTO(" +
             "h.delay_seconds, " +
@@ -31,4 +34,20 @@ public interface DeliveryHistoryRepository extends JpaRepository<DeliveryHistory
             "JOIN t.warehouse w " +
             "WHERE h.date_of_delivery >= :startDate")
     List<AiTrainingDTO> findAiTrainingData(@Param("startDate") LocalDate startDate);
+
+
+
+    Page<DeliveryHistory> findByTourStatus(TourStatus tourStatus, Pageable pageable);
+
+
+
+    @Query("""
+        SELECT dh 
+        FROM DeliveryHistory dh 
+        JOIN dh.customer c 
+        WHERE c.name LIKE %:name%
+        ORDER BY dh.dayOfWeek DESC
+    """)
+    Page<DeliveryHistory> findByCustomerName(@Param("name") String name, Pageable pageable);
+
 }

@@ -42,46 +42,43 @@ public class Delivery {
     @OneToMany(mappedBy = "delivery", cascade = CascadeType.REMOVE)
     private List<DeliveryHistory> historyRecords;
 
-    // V1: Links Delivery to Tour (Many Deliveries -> One Tour)
+
     @ManyToOne
-    @JsonBackReference // Prevents recursion when Tour serializes its List<Delivery>
+    @JsonBackReference
     @JoinColumn(name = "tour_id")
     private Tour tour;
 
-    // --- CONSTRUCTOR ---
-    public Delivery() {}
+ public Delivery() {}
 
 
-    // --- GETTERS AND SETTERS ---
 
-    // ID
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    // Coordinates
     public double getLatitude() { return latitude; }
     public void setLatitude(double latitude) { this.latitude = latitude; }
     public double getLongitude() { return longitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
 
-    // Load Metrics
+
     public double getWeight() { return weight; }
     public void setWeight(double weight) { this.weight = weight; }
     public double getVolume() { return volume; }
     public void setVolume(double volume) { this.volume = volume; }
 
-    // Status
+
     public DeliveryStatus getStatus() { return status; }
     public void setStatus(DeliveryStatus status) { this.status = status; }
 
-    // V2 Timing Fields
+
     public LocalTime getPlannedTime() { return plannedTime; }
     public void setPlannedTime(LocalTime plannedTime) { this.plannedTime = plannedTime; }
 
     public LocalTime getActualTime() { return actualTime; }
     public void setActualTime(LocalTime actualTime) { this.actualTime = actualTime; }
 
-    // Relationships Getters/Setters
+
     public Tour getTour() { return tour; }
     public void setTour(Tour tour) { this.tour = tour; }
 

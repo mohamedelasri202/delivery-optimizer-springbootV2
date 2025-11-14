@@ -3,7 +3,7 @@ package com.deliveryoptimizer.DTO;
 import java.time.LocalTime;
 import java.util.List;
 
-// Note: No need for @Entity or other JPA annotations here
+
 public class CustomerDTO {
     private Long id;
     private String name;
@@ -12,7 +12,7 @@ public class CustomerDTO {
     private double latitude;
     private String preferredTimeSlot;
 
-    // Represents the list of Deliveries by their IDs
+
     private List<Long> deliveryIds;
 
     public String getAddress() {

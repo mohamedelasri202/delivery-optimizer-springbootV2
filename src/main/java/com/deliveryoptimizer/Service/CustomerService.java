@@ -4,10 +4,10 @@ import com.deliveryoptimizer.DTO.CustomerDTO;
 import com.deliveryoptimizer.Mapper.CustomerMapper;
 import com.deliveryoptimizer.Model.Customer;
 import com.deliveryoptimizer.Repositories.CustomerRepository;
-import jakarta.transaction.Transactional; // Import necessary for transactional methods
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page; // NEW: Required for Pagination
-import org.springframework.data.domain.Pageable; // NEW: Required for Pagination
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional; // Required for handling findById

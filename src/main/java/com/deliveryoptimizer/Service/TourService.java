@@ -118,7 +118,7 @@ public abstract class TourService implements TourServiceInterface {
                 .orElse(null);
     }
 
-
+    @Transactional
     @Override
     public OptimizedTourDTO getOptimizedTour(Integer id) {
         // ... (getOptimizedTour logic with context) ...
@@ -133,7 +133,7 @@ public abstract class TourService implements TourServiceInterface {
         context.setDeliveries(tour.getDeliveries());
 
         List<Delivery> optimizedDeliveries = activeOptimizer.calculateOptimalTour(context);
-        // ... (distance calculation and return DTO logic) ...
+
 
         double totalDistance = getTotallDistance(tour.getWarehouse(), optimizedDeliveries);
         return optimizedTourMapper.toDTO(tour, optimizedDeliveries, totalDistance);

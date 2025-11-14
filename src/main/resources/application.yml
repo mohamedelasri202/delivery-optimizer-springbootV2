@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: qa,cw
+    active: qa,ai
   jpa:
     hibernate:
       ddl-auto: none
@@ -9,8 +9,15 @@ spring:
       hibernate:
         format_sql: true
 
-
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: gemma3:4b
+          temperature: 0.7
+
 server:
   port: 8080

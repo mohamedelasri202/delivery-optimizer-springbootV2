@@ -28,10 +28,8 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-// This class MUST remain abstract to allow Spring to proxy the @Lookup methods
 public abstract class TourService implements TourServiceInterface {
 
-    // --- FINAL FIELDS ---
     private final TourRepository tourRepository;
     private final TourMapper tourMapper;
     private final WareHouseRepository wareHouseRepository;
@@ -39,7 +37,6 @@ public abstract class TourService implements TourServiceInterface {
     private final List<TourOptimizer> optimizers;
     private final TourOptimizer activeOptimizer;
     private final OptimizedTourMapper optimizedTourMapper;
-    // 🛑 The following field must be REMOVED if you use @Lookup, but we keep it here for clarity/debugging.
     private final DeliveryHistory sharedHistoryInstance;
     private final DeliveryHistoryRepository deliveryHistoryRepository;
 
@@ -47,12 +44,11 @@ public abstract class TourService implements TourServiceInterface {
     @Lookup
     public abstract RouteOptimizationContext getRouteOptimizationContext();
 
-    // 🛑 FIX 2: NEW @Lookup method to solve the data contamination problem
+
     @Lookup
     public abstract DeliveryHistory getNewDeliveryHistoryInstance();
 
 
-    // --- FIX 3: Corrected Constructor with ALL Assignments ---
     public TourService(TourRepository tourRepository,
                        TourMapper tourMapper,
                        WareHouseRepository wareHouseRepository,
@@ -63,7 +59,6 @@ public abstract class TourService implements TourServiceInterface {
                        DeliveryHistory sharedHistoryInstance,
                        DeliveryHistoryRepository deliveryHistoryRepository) {
 
-        // 🛑 CRITICAL FIX: Assign ALL final fields
         this.tourRepository = tourRepository;
         this.tourMapper = tourMapper;
         this.wareHouseRepository = wareHouseRepository;
@@ -98,13 +93,13 @@ public abstract class TourService implements TourServiceInterface {
 
     @Transactional
     public TourDTO update(TourDTO dto) {
-        // ... (update logic) ...
+
         return tourMapper.toDTO(tourRepository.save(tourMapper.toEntity(dto)));
     }
 
     @Transactional
     public Boolean delete(Integer id) {
-        // ... (delete logic) ...
+
         return tourRepository.findById(id).map(tour -> {
             tourRepository.delete(tour);
             return true;
@@ -112,7 +107,7 @@ public abstract class TourService implements TourServiceInterface {
     }
 
     public TourDTO getById(Integer id) {
-        // ... (getById logic) ...
+
         return tourRepository.findById(id)
                 .map(tourMapper::toDTO)
                 .orElse(null);
@@ -121,11 +116,11 @@ public abstract class TourService implements TourServiceInterface {
     @Transactional
     @Override
     public OptimizedTourDTO getOptimizedTour(Integer id) {
-        // ... (getOptimizedTour logic with context) ...
+
         RouteOptimizationContext context = getRouteOptimizationContext();
 
         Tour tour = tourRepository.findByIdWithDetails(id).orElse(null);
-        if (tour == null) { /* ... log warning ... */ return null; }
+        if (tour == null) {  return null; }
 
         context.setTourId((long) tour.getId());
         context.setVehicle(tour.getVehicle());
@@ -141,7 +136,7 @@ public abstract class TourService implements TourServiceInterface {
 
 
     public double getTotallDistance(Warehouse warehouse, List<Delivery> deliveries) {
-        // ... (distance calculation logic unchanged) ...
+
         double totalDistance = 0;
         double currentLat = warehouse.getLatitude();
         double currentLon = warehouse.getLongitude();
@@ -157,15 +152,15 @@ public abstract class TourService implements TourServiceInterface {
     }
 
 
-    @Override
-    public List<OptimizedTourDTO> compareAlgorithem(Integer id) {
-        // ... (comparison logic using optimizers list and context) ...
-        // ... (Implementation remains similar to getOptimizedTour, using context) ...
-        return List.of(); // Placeholder
-    }
+//    @Override
+//    public List<OptimizedTourDTO> compareAlgorithem(Integer id) {
+//        // ... (comparison logic using optimizers list and context) ...
+//        // ... (Implementation remains similar to getOptimizedTour, using context) ...
+//        return List.of(); // Placeholder
+//    }
 
 
-    // --- HISTORY CREATION METHOD (Completing the experiment) ---
+
     @Transactional
     @Override
     public TourDTO completeTour(Integer id) {

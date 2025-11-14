@@ -1,5 +1,6 @@
 package com.deliveryoptimizer.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class Warehouse {
     private double longitude;
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Tour> tours;
 
     public Warehouse() {}

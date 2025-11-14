@@ -7,7 +7,9 @@ import com.deliveryoptimizer.Repositories.CustomerRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 
 import java.util.Optional; // Required for handling findById
@@ -56,4 +58,10 @@ public class CustomerService implements CustomerServiceInterface {
         log.info("Customer ID {} successfully deleted.", id);
         return deletedDTO;
     }
+//    pagination
+@Override
+public Page<Customer> findByPreferredTimeSlot(String timeSlot, Pageable pageable) {
+    return customerRepository.findByPreferredTimeSlot(timeSlot, pageable);
+}
+
 }

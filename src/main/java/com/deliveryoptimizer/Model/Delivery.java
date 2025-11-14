@@ -1,6 +1,7 @@
 package com.deliveryoptimizer.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // FIX: To suppress nested JSON output
 import jakarta.persistence.*;
 import java.time.LocalTime; // Modern time standard
@@ -24,21 +25,20 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status = DeliveryStatus.PENDING;
 
-    // V2 FIX: Timing fields mapped to correct database names
+
     @Column(name = "plannedTime")
     private LocalTime plannedTime;
 
     @Column(name = "actualTime")
     private LocalTime actualTime;
 
-    // --- RELATIONSHIPS ---
 
-    // V2: Links Delivery to Customer (Many Deliveries -> One Customer)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
+    @JsonIgnore
     private Customer customer;
 
-    // V2: Links Delivery to History (One Delivery -> Many History Records)
+
     @OneToMany(mappedBy = "delivery", cascade = CascadeType.REMOVE)
     private List<DeliveryHistory> historyRecords;
 

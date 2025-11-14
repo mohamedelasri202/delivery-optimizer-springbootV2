@@ -1,7 +1,10 @@
 package com.deliveryoptimizer.Controller;
 
 import com.deliveryoptimizer.DTO.CustomerDTO;
+import com.deliveryoptimizer.Model.Customer;
 import com.deliveryoptimizer.Service.CustomerServiceInterface;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
@@ -40,6 +43,18 @@ public class CustomerController {
         return ResponseEntity.noContent().build(); // Returns 204 No Content
     }
 
+    @GetMapping("/search-by-time-slot")
+    public ResponseEntity<Page<Customer>>findBY_prefferdTimeSlot(
+            @RequestParam String timeSlot,
+            @RequestParam (defaultValue ="0" ) int page,
+            @RequestParam (defaultValue = "10") int size,
+            @RequestParam (defaultValue="name") String sortedBy)
+             {
+         Pageable pageable = PageRequest.of(page,size, Sort.by(sortedBy));
+        Page<Customer>customerPage = customerService.findByPreferredTimeSlot(timeSlot, pageable);
+    return ResponseEntity.ok(customerPage);
+
+    }
 
 
 }

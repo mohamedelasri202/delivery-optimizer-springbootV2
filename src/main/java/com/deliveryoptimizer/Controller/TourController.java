@@ -81,10 +81,10 @@ public class TourController {
     })
     public ResponseEntity<TourDTO> completeTour(@PathVariable Integer id) {
 
-        // 1. Call the service method to execute the history creation logic
+
         TourDTO completedTourDTO = tourService.completeTour(id);
 
-        // 2. Return 200 OK with the final state of the Tour
+
         return ResponseEntity.ok(completedTourDTO);
     }
 }

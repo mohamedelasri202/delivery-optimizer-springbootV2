@@ -1,6 +1,7 @@
 package com.deliveryoptimizer.Model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +24,10 @@ public class Customer {
     private double latitude;
     private String preferredTimeSlot;
     @OneToMany(mappedBy = "customer" ,cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Delivery> deliveries;
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<DeliveryHistory> historyRecords;
 
 

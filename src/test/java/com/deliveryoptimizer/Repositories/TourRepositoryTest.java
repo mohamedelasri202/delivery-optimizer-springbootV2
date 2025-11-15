@@ -34,14 +34,14 @@ public class TourRepositoryTest {
 
     @BeforeEach
     void setup() {
-        // 🏭 Create warehouse
+
         Warehouse warehouse = new Warehouse();
         warehouse.setName("Test Warehouse");
         warehouse.setLatitude(33.5731);
         warehouse.setLongitude(-7.5898);
         wareHouseRepository.saveAndFlush(warehouse);
 
-        //  Create vehicle
+
         Vehicle vehicle = new Vehicle();
         vehicle.setType(VehicleType.TRUCK);
         vehicle.setMaxWeight(2000.0);
@@ -49,7 +49,7 @@ public class TourRepositoryTest {
         vehicle.setMaxDeliveries(50);
         vehicleRepository.saveAndFlush(vehicle);
 
-        //  Create tour
+
         Tour tour = new Tour();
         tour.setTourType(ClarkeWrightOptimizer);
         tour.setWarehouse(warehouse);
@@ -76,14 +76,14 @@ public class TourRepositoryTest {
         assertThat(result).isPresent();
         Tour tour = result.get();
 
-        // Warehouse details
+
         Warehouse wh = tour.getWarehouse();
         System.out.println("Warehouse ID: " + wh.getId());
         System.out.println("Warehouse Name: " + wh.getName());
         System.out.println("Warehouse Latitude: " + wh.getLatitude());
         System.out.println("Warehouse Longitude: " + wh.getLongitude());
 
-        // Vehicle details
+
         Vehicle v = tour.getVehicle();
         System.out.println("Vehicle ID: " + v.getId());
         System.out.println("Vehicle Type: " + v.getType());
@@ -91,7 +91,7 @@ public class TourRepositoryTest {
         System.out.println("Max Volume: " + v.getMaxVolume());
         System.out.println("Max Deliveries: " + v.getMaxDeliveries());
 
-        // Delivery details
+
         for (Delivery d : tour.getDeliveries()) {
             System.out.println("Delivery ID: " + d.getId());
             System.out.println("Latitude: " + d.getLatitude());
